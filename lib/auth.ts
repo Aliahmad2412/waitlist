@@ -28,7 +28,11 @@ export async function verifyAdmin(email: string, password: string): Promise<bool
 
 export async function isAdminEmail(email: string): Promise<boolean> {
   // During build, API routes won't work, so just check local passwords
-  if (process.env.NEXT_PHASE === 'phase-production-build') {
+  const isBuildTime = 
+    process.env.NEXT_PHASE === 'phase-production-build' ||
+    (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_SUPABASE_URL)
+  
+  if (isBuildTime) {
     return email.toLowerCase() in ADMIN_PASSWORDS
   }
 
