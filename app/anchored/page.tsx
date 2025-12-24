@@ -1,10 +1,29 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 
+// Get basePath for images (matches next.config.js)
+// For GitHub Pages, always use /Anchored in production (repository name)
+// Use runtime detection for client-side rendering
+function getBasePath() {
+  if (typeof window === 'undefined') return ''
+  // Check if we're on GitHub Pages by looking at the pathname
+  if (window.location.pathname.startsWith('/Anchored')) {
+    return '/Anchored'
+  }
+  // For local development, return empty string
+  return ''
+}
+
 export default function AnchoredWaitlist() {
+  // Initialize basePath immediately for SSR compatibility
+  const [basePath] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return getBasePath()
+    }
+    return ''
+  })
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -80,7 +99,7 @@ export default function AnchoredWaitlist() {
       }
 
       // Insert or update waitlist entry using Supabase client
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('waitlist')
         .upsert(
           {
@@ -94,10 +113,21 @@ export default function AnchoredWaitlist() {
             onConflict: 'email',
           }
         )
+        .select()
 
       if (error) {
         console.error('Supabase error:', error)
-        throw new Error('Failed to save to waitlist')
+        console.error('Error details:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        })
+        // Provide more specific error message
+        if (error.code === 'PGRST301' || error.message?.includes('permission denied') || error.message?.includes('401')) {
+          throw new Error('Database access denied. Please check your Supabase configuration and RLS policies.')
+        }
+        throw new Error(error.message || 'Failed to save to waitlist')
       }
 
       setIsSubmitted(true)
@@ -124,17 +154,17 @@ export default function AnchoredWaitlist() {
         
         {/* Tree Image in Background */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="relative w-full max-w-2xl opacity-30">
-            {/* Root reveal mask */}
-            <div className="root-reveal-mask">
-              <Image
-                src="/anchored_tree_transparent.png"
-                alt="Anchored Tree"
-                width={600}
-                height={900}
-                className="w-full h-auto"
-                priority
-              />
+            <div className="relative w-full max-w-2xl opacity-30">
+              {/* Root reveal mask */}
+              <div className="root-reveal-mask">
+                <img
+                  src={`${basePath}/anchored_tree_transparent.png`}
+                  alt="Anchored Tree"
+                  width={600}
+                  height={900}
+                  className="w-full h-auto"
+                  loading="eager"
+                />
             </div>
           </div>
         </div>
@@ -247,14 +277,13 @@ export default function AnchoredWaitlist() {
               <div className="flex justify-center md:justify-start order-2 md:order-1">
                 <div className="relative group w-full max-w-[420px]">
                   <div className="relative rounded-lg shadow-2xl overflow-hidden transition-all duration-500 group-hover:shadow-3xl group-hover:scale-[1.02] bg-white">
-                    <Image
-                      src="/book-cover.jpg"
+                    <img
+                      src={`${basePath}/book-cover.jpg`}
                       alt="Anchored by Rochelle Trow - Book Cover"
                       width={800}
                       height={1200}
                       className="w-full h-auto object-contain"
-                      priority
-                      sizes="(max-width: 768px) 90vw, 420px"
+                      loading="eager"
                     />
                   </div>
                   <div className="absolute -inset-1 bg-gradient-to-r from-maize-400 to-pearl-aqua-400 rounded-lg opacity-0 group-hover:opacity-20 blur transition-opacity duration-500"></div>

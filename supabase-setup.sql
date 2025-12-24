@@ -28,6 +28,14 @@ CREATE POLICY "Allow public insert on waitlist"
   TO anon
   WITH CHECK (true);
 
+-- Policy: Allow anyone to update (needed for upsert operations)
+CREATE POLICY "Allow public update on waitlist"
+  ON waitlist
+  FOR UPDATE
+  TO anon
+  USING (true)
+  WITH CHECK (true);
+
 -- Policy: Allow service role to read (for viewing entries in Supabase dashboard)
 -- This allows you to view entries using the service role key
 CREATE POLICY "Allow service role read on waitlist"
