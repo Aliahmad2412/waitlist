@@ -22,17 +22,19 @@ CREATE INDEX IF NOT EXISTS idx_waitlist_email ON waitlist(email);
 ALTER TABLE waitlist ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Allow anyone to insert (for the waitlist form)
+-- Note: Include both 'anon' and 'authenticated' roles for compatibility
 CREATE POLICY "Allow public insert on waitlist"
   ON waitlist
   FOR INSERT
-  TO anon
+  TO anon, authenticated
   WITH CHECK (true);
 
 -- Policy: Allow anyone to update (needed for upsert operations)
+-- Note: Include both 'anon' and 'authenticated' roles for compatibility
 CREATE POLICY "Allow public update on waitlist"
   ON waitlist
   FOR UPDATE
-  TO anon
+  TO anon, authenticated
   USING (true)
   WITH CHECK (true);
 

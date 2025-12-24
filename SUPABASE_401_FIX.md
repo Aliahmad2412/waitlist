@@ -1,16 +1,52 @@
-# Fixing Supabase 401 Error
+# Fixing Supabase 401/42501 Error
 
-## Understanding the 401 Error
+## Understanding the Error
 
+### Error Code 401
 A 401 error from Supabase typically means one of these issues:
-
 1. **Missing or Invalid API Keys** - The Supabase URL or anon key is not set correctly
 2. **Row Level Security (RLS) Policy Missing** - The database policy doesn't allow the operation
 3. **Wrong Environment Variables** - Variables are not set in GitHub Pages secrets
 
+### Error Code 42501: "new row violates row-level security policy"
+This specific error means the INSERT policy is not working correctly. Common causes:
+1. **Policy doesn't exist** - The policy was never created
+2. **Policy is incorrect** - The policy syntax or role is wrong
+3. **Policy conflict** - Multiple policies are conflicting
+4. **Policy needs to include both roles** - Should allow both `anon` and `authenticated` roles
+
+## Quick Fix for Error 42501
+
+If you're getting **"new row violates row-level security policy"**, run this SQL script in Supabase SQL Editor:
+
+**Use the file `fix-rls-policies.sql`** - It will drop and recreate all policies correctly.
+
+Or manually run:
+
+```sql
+-- Drop existing policies
+DROP POLICY IF EXISTS "Allow public insert on waitlist" ON waitlist;
+DROP POLICY IF EXISTS "Allow public update on waitlist" ON waitlist;
+
+-- Recreate INSERT policy (include both anon and authenticated)
+CREATE POLICY "Allow public insert on waitlist"
+  ON waitlist
+  FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (true);
+
+-- Recreate UPDATE policy (include both anon and authenticated)
+CREATE POLICY "Allow public update on waitlist"
+  ON waitlist
+  FOR UPDATE
+  TO anon, authenticated
+  USING (true)
+  WITH CHECK (true);
+```
+
 ## Solution Steps
 
-### Step 1: Add UPDATE Policy to Supabase
+### Step 1: Fix RLS Policies in Supabase
 
 The code uses `upsert` which requires both INSERT and UPDATE permissions. Run this SQL in your Supabase SQL Editor:
 
