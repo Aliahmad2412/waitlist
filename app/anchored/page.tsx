@@ -95,6 +95,12 @@ export default function AnchoredWaitlist() {
         throw new Error('Invalid email address')
       }
 
+      // Check if Supabase is properly configured
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      if (!supabaseUrl || supabaseUrl.includes('build-placeholder') || supabaseUrl.includes('placeholder')) {
+        throw new Error('Supabase is not configured. Please contact the site administrator.')
+      }
+
       // Insert or update waitlist entry using Supabase client
       const { data, error } = await supabase
         .from('waitlist')
@@ -121,6 +127,9 @@ export default function AnchoredWaitlist() {
           hint: error.hint
         })
         // Provide more specific error message
+        if (error.message?.includes('Failed to fetch') || error.message?.includes('TypeError')) {
+          throw new Error('Unable to connect to the server. Please check your internet connection and try again.')
+        }
         if (error.code === 'PGRST301' || error.message?.includes('permission denied') || error.message?.includes('401')) {
           throw new Error('Database access denied. Please check your Supabase configuration and RLS policies.')
         }
@@ -155,7 +164,7 @@ export default function AnchoredWaitlist() {
               {/* Root reveal mask */}
               <div className="root-reveal-mask">
                 <img
-                  src={`${basePath}/anchored_tree_transparent.png`}
+                  src={basePath ? `${basePath}/anchored_tree_transparent.png` : '/anchored_tree_transparent.png'}
                   alt="Anchored Tree"
                   width={600}
                   height={900}
@@ -275,7 +284,7 @@ export default function AnchoredWaitlist() {
                 <div className="relative group w-full max-w-[420px]">
                   <div className="relative rounded-lg shadow-2xl overflow-hidden transition-all duration-500 group-hover:shadow-3xl group-hover:scale-[1.02] bg-white">
                     <img
-                      src={`${basePath}/book-cover.jpg`}
+                      src={basePath ? `${basePath}/book-cover.jpg` : '/book-cover.jpg'}
                       alt="Anchored by Rochelle Trow - Book Cover"
                       width={800}
                       height={1200}
