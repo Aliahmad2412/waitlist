@@ -2,9 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'export',
-  // Always use basePath for GitHub Pages (repository name)
-  // Update this to match your actual repository name on GitHub
-  basePath: process.env.GITHUB_PAGES === 'true' || process.env.NODE_ENV === 'production' ? '/Anchored' : '',
+  // Only use basePath when explicitly building for GitHub Pages
+  basePath: process.env.GITHUB_PAGES === 'true' ? '/Anchored' : '',
   images: {
     unoptimized: true,
   },
