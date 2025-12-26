@@ -439,16 +439,19 @@ export default function AnchoredWaitlist() {
                 )}
               </button>
             </form>
+
+            {/* Testimonial Intro */}
+            <div className="mt-10 pt-8 border-t border-pearl-aqua-200">
+              <p className="text-lg md:text-xl text-slate-800 font-bold italic text-center mb-8">
+                If you're curious, here's what a few early readers have shared about the book.
+              </p>
+            </div>
           </div>
-          
-          <p className="text-lg md:text-xl text-slate-800 font-bold italic text-center mt-2 mb-0">
-            If you're curious, here's what a few early readers have shared about the book.
-          </p>
 
           {/* Testimonials */}
           <div 
             ref={(el) => { sectionRefs.current['testimonials'] = el }}
-            className={`space-y-12 pt-2 border-t border-pearl-aqua-200 transition-all duration-1000 delay-600 ${
+            className={`space-y-12 pt-2 transition-all duration-1000 delay-600 ${
               visibleSections.has('testimonials') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >

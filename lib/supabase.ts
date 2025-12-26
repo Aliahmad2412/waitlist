@@ -1,7 +1,27 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+// Support both Next.js (process.env) and Vite (import.meta.env) environment variables
+// In Vite, import.meta.env.VITE_* variables are available at runtime in the browser
+// In Next.js, process.env.NEXT_PUBLIC_* variables are available
+const getEnvVar = (viteKey: string, nextKey: string): string | undefined => {
+  // In browser runtime, check for Vite's import.meta.env
+  if (typeof window !== 'undefined') {
+    try {
+      // @ts-ignore - import.meta exists in Vite but not in Next.js
+      const viteValue = import.meta?.env?.[viteKey]
+      if (viteValue) {
+        return viteValue
+      }
+    } catch {
+      // import.meta not available (Next.js environment)
+    }
+  }
+  // Fall back to process.env (Next.js or Node.js)
+  return process.env[nextKey] || process.env[viteKey]
+}
+
+const supabaseUrl = getEnvVar('VITE_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL')
+const supabaseAnonKey = getEnvVar('VITE_SUPABASE_ANON_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY')
 
 // Check if we're in a build environment
 const isBuildTime = () => {
