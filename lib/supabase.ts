@@ -81,26 +81,6 @@ let _supabaseUrl: string | null = null
 
 // Helper to check if Supabase is properly configured
 export const isSupabaseConfigured = () => {
-  // In Next.js static export, process.env.NEXT_PUBLIC_* vars are replaced at build time
-  // So we check the actual values that were embedded during build
-  const envUrl = getEnvVar('VITE_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL')
-  
-  // If env var is not set at all, return false
-  if (!envUrl || envUrl.trim() === '') {
-    return false
-  }
-  
-  // Check if it's a placeholder
-  if (envUrl.includes('build-placeholder') || envUrl.includes('placeholder')) {
-    return false
-  }
-  
-  // Validate it's a real Supabase URL
-  if (!envUrl.includes('.supabase.co')) {
-    return false
-  }
-  
-  // Double-check the resolved URL
   const url = getSupabaseUrl()
   _supabaseUrl = url
   return !url.includes('build-placeholder') && !url.includes('placeholder') && url.includes('.supabase.co')
